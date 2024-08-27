@@ -6,10 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Zap, Repeat, Share2, BarChart2 } from "lucide-react";
+import Authenticator from "@/components/background/authenticator";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-white">
+      <Authenticator />
       <header className="container mx-auto px-4 py-8">
         <nav className="flex justify-between items-center">
           <div className="text-2xl font-bold text-indigo-700">

@@ -30,11 +30,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import LoadingState from "@/components/ui/LoadingState";
+import { useRouter } from "next/navigation";
+import Authenticator from "@/components/background/authenticator";
 
 export default function Component() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
   const [article, setArticle] = useState("");
   const [socialPosts, setSocialPosts] = useState({
@@ -42,25 +47,59 @@ export default function Component() {
     linkedin: "",
     facebook: "",
   });
+  const [linkIsBlocked, setLinkBlocked] = useState(false);
+  const userName = localStorage.getItem("userName");
 
-  const handleSubmit = (e) => {
+  const fetchArticleAndPosts = async () => {
+    try {
+      const response = await fetch("/api/fetcharticle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: url }),
+      });
+
+      const data = await response.json();
+      setArticle(data.content);
+
+      // Now that the article is set, fetch the posts
+      await fetchPosts(data.content);
+    } catch (error) {
+      console.error("Error fetching article:", error);
+    }
+  };
+
+  const fetchPosts = async (articleContent) => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/fetchposts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ article: articleContent }),
+      });
+
+      const data = await response.json();
+      const cleanedData = JSON.parse(data.response);
+
+      setLinkBlocked(cleanedData.blocked);
+      setArticle(cleanedData.fullCleanArticle);
+      setSocialPosts(cleanedData.socialMediaPosts);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      setArticle(
-        "This is a simulated article content. The AI has analyzed it and extracted key points."
-      );
-      setSocialPosts({
-        twitter:
-          "Check out this amazing article on AI advancements! #TechInnovation #AIFuture",
-        linkedin:
-          "I've just read a fascinating piece on the latest AI breakthroughs. It discusses how AI is reshaping industries and our daily lives. What's your take on these rapid advancements?",
-        facebook:
-          "Just came across an eye-opening article about AI's impact on society. It's incredible how fast technology is evolving! Have you noticed any AI-driven changes in your life recently?",
-      });
-      setStep(2);
-      setIsLoading(false);
-    }, 3000);
+    await fetchArticleAndPosts();
+    setIsLoading(false);
+    setStep(2);
   };
 
   const generateSocialPosts = () => {
@@ -72,12 +111,39 @@ export default function Component() {
     }, 2000);
   };
 
-  const simulatePosting = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+  const simulatePosting = async () => {
+    setLoading(true);
+    try {
+      await fetch("/api/postlinkedin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: socialPosts.linkedin }),
+      });
+
+      await fetch("/api/posttwitter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: socialPosts.twitter }),
+      });
+
+      await fetch("/api/postfacebook", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: socialPosts.facebook }),
+      });
+
       alert("Posts have been shared successfully!");
-    }, 2000);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error posting to social media:", error);
+      setLoading(false);
+    }
   };
 
   const restart = () => {
@@ -87,24 +153,36 @@ export default function Component() {
     setSocialPosts({ twitter: "", linkedin: "", facebook: "" });
   };
 
+  const handleLogOff = () => {
+    localStorage.clear();
+    router.push("/login");
+  };
+
   const cronJobLink = `https://api.articleai.pro/analyze?url=${encodeURIComponent(
     url
   )}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
+      <LoadingState loading={loading} setLoading={setLoading} />
+      <Authenticator />
       <header className="container mx-auto px-4 py-8">
         <nav className="flex justify-between items-center">
           <div className="text-2xl font-bold text-indigo-700">
             ArticleAI Pro
           </div>
-          <Button variant="destructive">
-            <a href="/login">Log Off</a>
+          <Button variant="destructive" onClick={handleLogOff}>
+            Log Off
           </Button>
         </nav>
       </header>
       <div className="container mx-auto p-4 max-w-4xl">
         <header className="text-center mb-12">
+          {userName && (
+            <h1 className="text-4xl font-bold text-indigo-600 mb-2">
+              Hi, {userName}
+            </h1>
+          )}
           <p className="text-xl text-gray-600">
             Transform Articles into Engaging Social Media Content
           </p>
@@ -169,33 +247,62 @@ export default function Component() {
               exit={{ opacity: 0, y: -50 }}
               transition={{ duration: 0.5 }}
             >
-              <Card className="backdrop-blur-lg bg-white/70 border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-indigo-700">
-                    Step 2: Article Analysis
-                  </CardTitle>
-                  <CardDescription className="text-gray-600">
-                    Review the AI-analyzed article content
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Textarea
-                    value={article}
-                    readOnly
-                    className="min-h-[200px] mb-4 bg-white border-indigo-200 focus:border-indigo-400 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                  />
-                  <Button
-                    onClick={generateSocialPosts}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
-                    disabled={isRefining}
-                  >
-                    {isRefining ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
-                    {isRefining ? "Refining..." : "Refine Social Media Posts"}
-                  </Button>
-                </CardContent>
-              </Card>
+              {linkIsBlocked ? (
+                <Card className="backdrop-blur-lg bg-red-50/70 border-0 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-2xl text-red-700">
+                      401 Access Blocked
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Unfortunately, you are blocked from accessing this
+                      specific article.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-800">
+                      The article you tried to analyze is restricted, and our AI
+                      is unable to process it. Please try a different article or
+                      contact support if you believe this is an error.
+                    </p>
+                    <Button
+                      onClick={restart}
+                      className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Retry with Another Article
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="backdrop-blur-lg bg-white/70 border-0 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-2xl text-indigo-700">
+                      Step 2: Article Analysis
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Review the AI-analyzed article content
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Textarea
+                      value={article}
+                      readOnly
+                      className="min-h-[200px] mb-4 bg-white border-indigo-200 focus:border-indigo-400 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    />
+                    <Button
+                      onClick={generateSocialPosts}
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                      disabled={isRefining}
+                    >
+                      {isRefining ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      {isRefining
+                        ? "Generating..."
+                        : "Generate Social Media Posts"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </motion.div>
           )}
 

@@ -15,25 +15,49 @@ import { Label } from "@/components/ui/label";
 import { Loader2, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Authenticator from "@/components/background/authenticator";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login process
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email, password: password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem("userName", data.user.name);
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("userEmail", data.user.email);
+        setIsLoading(false);
+        router.push("/dashboard");
+      } else if (!response.ok) {
+        setError(data.message);
+        console.log(data.message);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setError(error.message);
+      console.log(error.message);
       setIsLoading(false);
-      alert("Login successful!");
-      // Here you would typically redirect to the main application page
-    }, 2000);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+      <Authenticator />
       <div className="container mx-auto p-4 max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -74,6 +98,7 @@ export default function LoginPage() {
                     className="bg-white border-indigo-200 focus:border-indigo-400 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                   />
                 </div>
+                {errorMsg && <p className="text-red-500 mt-4">{errorMsg}</p>}
                 <Button
                   type="submit"
                   className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
@@ -101,14 +126,6 @@ export default function LoginPage() {
                   className="text-indigo-600 hover:underline"
                 >
                   Register here
-                </Link>
-              </div>
-              <div className="text-sm text-gray-600 text-center">
-                <Link
-                  href="/forgot-password"
-                  className="text-indigo-600 hover:underline"
-                >
-                  Forgot your password?
                 </Link>
               </div>
             </CardFooter>
