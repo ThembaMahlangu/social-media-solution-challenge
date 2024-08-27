@@ -29,13 +29,14 @@ ArticleAI Pro is a platform designed to streamline the process of generating soc
 
 - **Git:** For cloning the repository
 - **Node.js:** Ensure Node.js is installed on your machine
+- **AyrshareAPI** Create an account to get your api key at https://www.ayrshare.com
 
 ### Steps
 
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd ArticleAI-Pro
+   cd social-media-solution-challenge
    ```
 
 2. **Install dependencies:**
