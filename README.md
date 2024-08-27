@@ -30,6 +30,7 @@ ArticleAI Pro is a platform designed to streamline the process of generating soc
 - **Git:** For cloning the repository
 - **Node.js:** Ensure Node.js is installed on your machine
 - **AyrshareAPI** Create an account to get your api key at https://www.ayrshare.com
+- **OpenAI API Key** Create an account and get your api key at https://platform.openai.com
 
 ### Steps
 
