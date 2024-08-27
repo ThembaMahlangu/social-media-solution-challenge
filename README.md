@@ -1,34 +1,73 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ArticleAI Pro
 
-## Getting Started
+**Author:** Themba Mahlangu  
+**Position Applied:** Software Engineer at ReasonGMTC
 
-First, run the development server:
+## Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+ArticleAI Pro is a platform designed to streamline the process of generating social media content from news articles. Users can register or log in, enter a link to an article from a news website, and the system will analyze and process the content. After review, users can generate social media posts tailored for LinkedIn, Twitter, and Facebook. These posts can then be directly posted to linked social media accounts via the AyrShare API.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- **User Authentication:** Secure login and registration system.
+- **Article Analysis:** Input a news article link for the system to analyze.
+- **Social Media Post Generation:** AI-generated posts for LinkedIn, Twitter, and Facebook using OpenAI.
+- **Direct Posting:** Post the generated content directly to social media accounts via AyrShare API.
+- **Dashboard:** User-friendly interface with a dashboard to manage links and posts.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Tech Stack
 
-## Learn More
+- **Framework:** Next.js (v14.2.4)
+- **Database:** MongoDB for user storage
+- **AI Integration:** OpenAI API for generating social media posts
+- **Web Scraping:** Puppeteer for extracting content from news articles
+- **Styling:** Tailwind CSS and Shadcn/UI for a modern and responsive UI
 
-To learn more about Next.js, take a look at the following resources:
+## Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Prerequisites
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- **Git:** For cloning the repository
+- **Node.js:** Ensure Node.js is installed on your machine
 
-## Deploy on Vercel
+### Steps
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd ArticleAI-Pro
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+2. **Install dependencies:**
+   - Using npm:
+     ```bash
+     npm install
+     ```
+   - Or using bun:
+     ```bash
+     bun install
+     ```
+
+3. **Run the project locally:**
+   - Using npm:
+     ```bash
+     npm run dev
+     ```
+   - Or using bun:
+     ```bash
+     bun run dev
+     ```
+
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your `.env.local` file:
+
+- `OPENAI_API_KEY`
+- `MONGODB_URI`
+- `DB_NAME`
+- `JWT_SECRET`
+- `AYRSHARE_API_KEY`
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
