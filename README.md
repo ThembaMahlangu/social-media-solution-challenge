@@ -1,8 +1,5 @@
 # ArticleAI Pro
 
-**Author:** Themba Mahlangu  
-**Position Applied:** Software Engineer at ReasonGMTC
-
 ## Overview
 
 ArticleAI Pro is a platform designed to streamline the process of generating social media content from news articles. Users can register or log in, enter a link to an article from a news website, and the system will analyze and process the content. After review, users can generate social media posts tailored for LinkedIn, Twitter, and Facebook. These posts can then be directly posted to linked social media accounts via the AyrShare API.
